@@ -38,8 +38,8 @@ library:
 
 executables:
  xref:
-    main:                ../xref.hs
-    source-dirs:         app/null
+    main:                XRef.hs
+    source-dirs:         app/xref
     ghc-options:
     - -threaded
     - -rtsopts
@@ -47,8 +47,8 @@ executables:
     dependencies:
     - xref
  xray:
-    main:                ../xray.hs
-    source-dirs:         app/null
+    main:                XRay.hs
+    source-dirs:         app/xray
     ghc-options:
     - -threaded
     - -rtsopts
@@ -66,3 +66,5 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - xref
+    - tasty
+    - tasty-hunit
