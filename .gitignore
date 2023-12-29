@@ -1,2 +1,6 @@
+# haskell build stuff
 .stack-work
+
+# default data file when running applications
+xref.json
 

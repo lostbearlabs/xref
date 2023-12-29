@@ -35,6 +35,12 @@ ghc-options:
 
 library:
   source-dirs: src
+  dependencies:
+  - aeson
+  - bytestring
+  default-extensions:
+    - OverloadedStrings
+    - DeriveGeneric
 
 executables:
  xref:
