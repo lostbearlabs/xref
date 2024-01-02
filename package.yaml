@@ -38,6 +38,7 @@ library:
   dependencies:
   - aeson
   - bytestring
+  - containers
   default-extensions:
     - OverloadedStrings
     - DeriveGeneric

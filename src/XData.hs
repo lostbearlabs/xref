@@ -6,6 +6,7 @@ import qualified Data.ByteString.Lazy as BS
 -- import System.IO
 import GHC.Generics
 
+-----------------
 -- Def
 -- Where a symbol is defined.
 
@@ -19,12 +20,14 @@ instance ToJSON Def
 
 instance FromJSON Def
 
+-----------------
 -- Ref
 -- Where a symbol is referenced.
 
 data Ref = Ref
   { targetSymbol :: String,
-    referringSymbol :: String
+    referringSymbol :: Maybe String,
+    referringFile :: String
   }
   deriving (Show, Eq, Generic)
 
@@ -32,6 +35,7 @@ instance ToJSON Ref
 
 instance FromJSON Ref
 
+-----------------
 -- Database
 -- A full set of Defs and Refs for a project
 
@@ -40,6 +44,9 @@ data Database = Database
     refs :: [Ref]
   }
   deriving (Show, Eq, Generic)
+
+-----------------
+-- Serialization
 
 instance ToJSON Database
 
@@ -58,3 +65,15 @@ readDatabaseFromFile filePath = do
       putStrLn $ "Error decoding JSON: " ++ err
       return Nothing
     Right def -> return (Just def)
+
+-----------------
+-- A sample DB for testing
+sampleDb :: Database
+sampleDb =
+  Database
+    [ Def "a" "fileA",
+      Def "b" "fileB"
+    ]
+    [ Ref "a" (Just "x") "fileX",
+      Ref "d" Nothing "fileY"
+    ]
