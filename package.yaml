@@ -62,6 +62,9 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - xref
+    - optparse-applicative
+    - directory
+    - filepath
 
 tests:
   xref-test:
