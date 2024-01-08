@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       Diffs
+      TerraformParser
       XData
   other-modules:
       Paths_xref
@@ -42,6 +43,7 @@ library
     , base >=4.7 && <5
     , bytestring
     , containers
+    , parsec
   default-language: Haskell2010
 
 executable xray

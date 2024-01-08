@@ -39,6 +39,7 @@ library:
   - aeson
   - bytestring
   - containers
+  - parsec
   default-extensions:
     - OverloadedStrings
     - DeriveGeneric
