@@ -1,4 +1,4 @@
-module XDataTests (module XDataTests) where
+module XDataTests (xDataTests) where
 
 import Test.Tasty
 import Test.Tasty.HUnit

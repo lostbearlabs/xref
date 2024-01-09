@@ -82,6 +82,7 @@ test-suite xref-test
   main-is: Spec.hs
   other-modules:
       DiffTests
+      TerraformParserTests
       XDataTests
       Paths_xref
   autogen-modules:

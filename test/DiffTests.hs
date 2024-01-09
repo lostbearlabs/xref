@@ -1,4 +1,4 @@
-module DiffTests (module DiffTests) where
+module DiffTests (diffTests) where
 
 import Diffs
 import Test.Tasty
@@ -14,6 +14,3 @@ diffTests =
       testCase "expected unused defs" $
         (unusedDefs sampleDb) @?= [Def "b" "fileB"]
     ]
-
-aDef :: Def
-aDef = Def {symbol = "Sym", file = "File.txt"}

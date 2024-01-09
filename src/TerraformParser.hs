@@ -38,7 +38,14 @@ instance Show TokOccur where
 type TId = String
 data TRVal = TStr String | TBool Bool | TNum String | TMap [(TId, TRVal)] | TArray [TRVal]
   deriving (Eq, Show)
-data TfDeclaration = TfConfig [(TId, TRVal)] | TfResource TId TId [(TId, TRVal)] | TfData TId TId [(TId, TRVal)] | TfOutput TId [(TId, TRVal)] | TfVariable TId [(TId, TRVal)] | TfProvider TId [(TId, TRVal)]
+data TfDeclaration = 
+    TfConfig [(TId, TRVal)] |
+    TfResource TId TId [(TId, TRVal)] |
+    TfModule TId [(TId, TRVal)] |
+    TfData TId TId [(TId, TRVal)] | 
+    TfOutput TId [(TId, TRVal)] | 
+    TfVariable TId [(TId, TRVal)] | 
+    TfProvider TId [(TId, TRVal)]
   deriving (Eq, Show)
 
 tfTokenizer :: Parsec String () [TokOccur]
@@ -95,7 +102,7 @@ tfParse' :: Parsec [TokOccur] () [TfToken]
 tfParse' = many (satisfy (const True))
 
 tfParse :: Parsec [TokOccur] () [TfDeclaration]
-tfParse = many (choice [terraconfig, provider, resource, _data, output, variable]) <* eof
+tfParse = many (choice [terraconfig, provider, resource, _data, output, variable, mmodule]) <* eof
   where
     terraconfig = do
       _ <- satisfy (==(TfId "terraform"))
@@ -110,6 +117,12 @@ tfParse = many (choice [terraconfig, provider, resource, _data, output, variable
       decls <- tfdecls
       _ <- satisfy (==TfBlockEnd)
       return $ TfResource typ key decls
+    mmodule = do
+      typ <- satisfy (==(TfId "module")) *> tfstr
+      _ <- satisfy (==TfBlockStart)
+      decls <- tfdecls
+      _ <- satisfy (==TfBlockEnd)
+      return $ TfModule typ decls
     _data = do
       typ <- satisfy (==(TfId "data")) *> tfstr
       key <- tfstr
