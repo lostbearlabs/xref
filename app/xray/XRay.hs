@@ -6,6 +6,8 @@ import Options.Applicative
 import System.Directory
 import System.FilePath ((</>))
 import XData
+import TerraformParser
+import Control.Monad (forM)
 
 -- File Types that we can analyze
 data FileType = TF | JVM
@@ -83,10 +85,25 @@ main = do
   putStrLn $ "recursive: " <> (show . recursive) options
 
   files <- findFilesWithExtensions (folder options) ((extensionsForFileType . fileType) options) (recursive options)
-  mapM_ putStrLn files
+  _ <- forM files $ \fileName -> do
+    putStrLn fileName
+    fileText <- readFile fileName
+    let db = parseFile (fileType options) fileName fileText
+    putStrLn (show db)
+    return db
 
   let filePath = "xref.json"
   let db = sampleDb
   putStrLn ("Writing " ++ (show (length (defs db))) ++ " symbols to " ++ filePath ++ " ...")
   writeDatabaseToFile filePath db
   putStrLn "... done"
+
+parseFile :: FileType -> String -> String -> Database
+parseFile TF fileName fileText = 
+  let 
+    decls :: [TfDeclaration]
+    decls = parseTF fileName fileText
+  in
+    Database [(Def "size" $ (show . length) decls)] []
+
+parseFile fType _ _ = error $ "file type " <> (show fType) <> " not implemented"
