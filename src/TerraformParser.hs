@@ -1,13 +1,4 @@
--- This file is derived from:
--- > https://github.com/tsprlng/terraform-hcl-converter/blob/master/TerraformParser.hs
--- which includes the following copyright notice:
--- > ISC License
--- >
--- > Copyright (c) 2019, Tom Spurling
--- > 
--- > Permission to use, copy, modify, and/or distribute this software for any
--- > purpose with or without fee is hereby granted, provided that the above
--- > copyright notice and this permission notice appear in all copies.
+
 
 {-# LANGUAGE FlexibleContexts #-}
 
