@@ -4,3 +4,6 @@
 # default data file when running applications
 xref.json
 
+# helper file I use for current test commands, refers to local filesystem
+run.sh
+
