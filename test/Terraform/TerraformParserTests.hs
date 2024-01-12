@@ -147,6 +147,7 @@ expExpressions = [TfConfig
     , ("b", TBool True)
     , ("c", TArray [ TStr "x", TStr "y"])
     , ("d", TMap [ ("p", TStr "p1"), ("q", TStr "q1") ])
+    , ("e", TMap [ ("r", TStr "r1") ])
     ]]
 
 stExpressions :: String
@@ -160,5 +161,8 @@ stExpressions = "\
 \  d            = {\
 \                    p = \"p1\",\
 \                    q = \"q1\"\
+\                 }\
+\  e            = {\
+\                    r = \"r1\",\
 \                 }\
 \}"
