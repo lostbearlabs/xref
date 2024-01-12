@@ -26,7 +26,7 @@ source-repository head
 library
   exposed-modules:
       Diffs
-      TerraformParser
+      Terraform.TerraformParser
       XData
   other-modules:
       Paths_xref
@@ -82,7 +82,7 @@ test-suite xref-test
   main-is: Spec.hs
   other-modules:
       DiffTests
-      TerraformParserTests
+      Terraform.TerraformParserTests
       XDataTests
       Paths_xref
   autogen-modules:

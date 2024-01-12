@@ -1,7 +1,7 @@
 import DiffTests
 import Test.Tasty
 import XDataTests
-import TerraformParserTests
+import Terraform.TerraformParserTests
 
 main :: IO ()
 main = defaultMain tests

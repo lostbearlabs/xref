@@ -6,7 +6,7 @@ import Options.Applicative
 import System.Directory
 import System.FilePath ((</>))
 import XData
-import TerraformParser
+import Terraform.TerraformParser
 import Control.Monad (forM)
 
 -- File Types that we can analyze
