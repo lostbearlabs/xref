@@ -43,6 +43,24 @@ data TfToken
   | TokEquals
   deriving (Eq, Show)
 
+-- Recognizers for the various tokens
+isTokBool :: TfToken -> Bool
+isTokBool (TokBool _) = True
+isTokBool _ = False
+
+isTokStr :: TfToken -> Bool
+isTokStr (TokStr _) = True
+isTokStr _ = False
+
+isTokNum :: TfToken -> Bool
+isTokNum (TokNum _) = True
+isTokNum _ = False
+
+isTokId :: TfToken -> Bool
+isTokId (TokId _) = True
+isTokId _ = False
+
+
 -- TokOccur wraps a TfToken together with a SourcePos
 data TokOccur = TokOccur SourcePos TfToken
 
@@ -93,7 +111,7 @@ tfTokenizer =
     sep = choice [string "\n", string ";"]
     treturn t = do
       pos <- sourcePos
-      return $ maybe Nothing (Just . TokOccur pos) t
+      return $ fmap (TokOccur pos) t
 
 identifier :: ParsecT String u Identity [Char]
 identifier = do

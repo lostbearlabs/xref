@@ -14,6 +14,16 @@ terraformParserTests =
         actResource @?= expResource
     , testCase "Module" $
         actModule @?= expModule
+    , testCase "Config" $
+        actConfig @?= expConfig
+    , testCase "Data" $
+        actData @?= expData
+    , testCase "Output" $
+        actOutput @?= expOutput
+    , testCase "Provider" $
+        actProvider @?= expProvider
+    , testCase "Expressions" $
+        actExpressions @?= expExpressions
     ]
 
 -------------------------------------
@@ -30,6 +40,21 @@ stVariable = "variable \"var1\" {\
 \  description = \"Var1 Description\"\
 \  default     = 5678\
 \}"
+
+-------------------------------------
+-- Provider
+
+actProvider :: [TfDeclaration]
+actProvider = parseTF "stProvider" stProvider
+
+expProvider :: [TfDeclaration]
+expProvider = [TfProvider "var1" [ ("description", TStr "Provider Description")] ]
+
+stProvider :: String
+stProvider = "provider \"var1\" {\
+\  description = \"Provider Description\"\
+\}"
+
 
 -------------------------------------
 -- Resource
@@ -59,4 +84,81 @@ stModule :: String
 stModule = "\
 \module \"module_type\" {\
 \  module_tag          = \"ModuleTag1\"\
+\}"
+
+-------------------------------------
+-- Config
+
+actConfig :: [TfDeclaration]
+actConfig = parseTF "stConfig" stConfig
+
+expConfig :: [TfDeclaration]
+expConfig = [TfConfig [("foo", TStr "bar")]]
+
+stConfig :: String
+stConfig = "\
+\terraform {\
+\  foo          = \"bar\"\
+\}"
+
+-------------------------------------
+-- Data
+
+actData :: [TfDeclaration]
+actData = parseTF "stData" stData
+
+expData :: [TfDeclaration]
+expData = [TfData "datatype" "datakey" [("foo", TStr "bar")]]
+
+stData :: String
+stData = "\
+\data \"datatype\" \"datakey\" {\
+\  foo          = \"bar\"\
+\}"
+
+-------------------------------------
+-- Output
+
+actOutput :: [TfDeclaration]
+actOutput = parseTF "stOutput" stOutput
+
+expOutput :: [TfDeclaration]
+expOutput = [TfOutput "Output_type" [("Output_tag", TStr "OutputTag1")]]
+
+stOutput :: String
+stOutput = "\
+\output \"Output_type\" {\
+\  Output_tag          = \"OutputTag1\"\
+\}"
+
+
+-------------------------------------
+-- Expressions
+-- (a simple config block as tested previously, but now exercising the different possible RVals)
+
+actExpressions :: [TfDeclaration]
+actExpressions = parseTF "stExpressions" stExpressions
+
+expExpressions :: [TfDeclaration]
+expExpressions = [TfConfig 
+    [ ("foo", TStr "bar")
+    , ("foo2", TStr "bar2")
+    , ("a", TNum "123")
+    , ("b", TBool True)
+    , ("c", TArray [ TStr "x", TStr "y"])
+    , ("d", TMap [ ("p", TStr "p1"), ("q", TStr "q1") ])
+    ]]
+
+stExpressions :: String
+stExpressions = "\
+\terraform {\
+\  foo          = \"bar\"\
+\  foo2         = \"bar2\"\
+\  a            = 123\
+\  b            = true\
+\  c            = [ \"x\", \"y\" ]\
+\  d            = {\
+\                    p = \"p1\",\
+\                    q = \"q1\"\
+\                 }\
 \}"
