@@ -35,114 +35,114 @@ tfParse :: Parsec [TokOccur] () [TfDeclaration]
 tfParse = many (choice [terraconfig, provider, resource, _data, output, variable, mmodule]) <* eof
   where
     terraconfig = do
-      _ <- satisfy (==(TfId "terraform"))
-      _ <- satisfy (==TfBlockStart)
+      _ <- satisfy (==(TokId "terraform"))
+      _ <- satisfy (==TokBlockStart)
       decls <- tfdecls
-      _ <- satisfy (==TfBlockEnd)
+      _ <- satisfy (==TokBlockEnd)
       return $ TfConfig decls
     resource = do
-      typ <- satisfy (==(TfId "resource")) *> tfstr
+      typ <- satisfy (==(TokId "resource")) *> tfstr
       key <- tfstr
-      _ <- satisfy (==TfBlockStart)
+      _ <- satisfy (==TokBlockStart)
       decls <- tfdecls
-      _ <- satisfy (==TfBlockEnd)
+      _ <- satisfy (==TokBlockEnd)
       return $ TfResource typ key decls
     mmodule = do
-      typ <- satisfy (==(TfId "module")) *> tfstr
-      _ <- satisfy (==TfBlockStart)
+      typ <- satisfy (==(TokId "module")) *> tfstr
+      _ <- satisfy (==TokBlockStart)
       decls <- tfdecls
-      _ <- satisfy (==TfBlockEnd)
+      _ <- satisfy (==TokBlockEnd)
       return $ TfModule typ decls
     _data = do
-      typ <- satisfy (==(TfId "data")) *> tfstr
+      typ <- satisfy (==(TokId "data")) *> tfstr
       key <- tfstr
-      _ <- satisfy (==TfBlockStart)
+      _ <- satisfy (==TokBlockStart)
       decls <- tfdecls
-      _ <- satisfy (==TfBlockEnd)
+      _ <- satisfy (==TokBlockEnd)
       return $ TfData typ key decls
     provider = do
-      key <- satisfy (==(TfId "provider")) *> tfstr
-      _ <- satisfy (==TfBlockStart)
+      key <- satisfy (==(TokId "provider")) *> tfstr
+      _ <- satisfy (==TokBlockStart)
       decls <- tfdecls
-      _ <- satisfy (==TfBlockEnd)
+      _ <- satisfy (==TokBlockEnd)
       return $ TfProvider key decls
     output = do
-      key <- satisfy (==(TfId "output")) *> tfstr
-      _ <- satisfy (==TfBlockStart)
+      key <- satisfy (==(TokId "output")) *> tfstr
+      _ <- satisfy (==TokBlockStart)
       decls <- tfdecls
-      _ <- satisfy (==TfBlockEnd)
+      _ <- satisfy (==TokBlockEnd)
       return $ TfOutput key decls
     variable = do
-      key <- satisfy (==(TfId "variable")) *> tfstr
-      _ <- satisfy (==TfBlockStart)
+      key <- satisfy (==(TokId "variable")) *> tfstr
+      _ <- satisfy (==TokBlockStart)
       decls <- tfdecls
-      _ <- satisfy (==TfBlockEnd)
+      _ <- satisfy (==TokBlockEnd)
       return $ TfVariable key decls
     tfstr = do
-      (TfStr s) <- satisfy isTfStr
+      (TokStr s) <- satisfy isTfStr
       return $ s
       where
-        isTfStr (TfStr _) = True
+        isTfStr (TokStr _) = True
         isTfStr _ = False
     tfid = do
-      (TfId s) <- satisfy isTfId
+      (TokId s) <- satisfy isTfId
       return $ s
       where
-        isTfId (TfId _) = True
+        isTfId (TokId _) = True
         isTfId _ = False
     tfdecls :: Parsec [TokOccur] () [(TId, TRVal)]
     tfdecls = many (choice [try provisioner, try backend, try block, assgn])
       -- TODO limit annoying special provisioner/backend cases to the relevant contexts
     tfarray = do
-      _ <- satisfy (==TfArrayStart)
+      _ <- satisfy (==TokArrayStart)
       things <- many tfrval
-      _ <- satisfy (==TfArrayEnd)
+      _ <- satisfy (==TokArrayEnd)
       return things
     provisioner = do
-      _ <- satisfy (==(TfId "provisioner"))
+      _ <- satisfy (==(TokId "provisioner"))
       typ <- tfstr
-      _ <- optionMaybe $ satisfy (==TfEquals)
-      _ <- satisfy (==TfBlockStart)
+      _ <- optionMaybe $ satisfy (==TokEquals)
+      _ <- satisfy (==TokBlockStart)
       decls <- tfdecls
-      _ <- satisfy (==TfBlockEnd)
+      _ <- satisfy (==TokBlockEnd)
       return $ ("__provisioner_"++typ, TMap decls)  -- TODO special-case this bullshit more nicely
     backend = do
-      _ <- satisfy (==(TfId "backend"))
+      _ <- satisfy (==(TokId "backend"))
       typ <- tfstr
-      _ <- optionMaybe $ satisfy (==TfEquals)
-      _ <- satisfy (==TfBlockStart)
+      _ <- optionMaybe $ satisfy (==TokEquals)
+      _ <- satisfy (==TokBlockStart)
       decls <- tfdecls
-      _ <- satisfy (==TfBlockEnd)
+      _ <- satisfy (==TokBlockEnd)
       return $ ("__backend_"++typ, TMap decls)  -- TODO special-case this bullshit more nicely
     block = do
       key <- tfid
-      _ <- optionMaybe $ satisfy (==TfEquals)
-      _ <- satisfy (==TfBlockStart)
+      _ <- optionMaybe $ satisfy (==TokEquals)
+      _ <- satisfy (==TokBlockStart)
       decls <- tfdecls
-      _ <- satisfy (==TfBlockEnd)
+      _ <- satisfy (==TokBlockEnd)
       return $ (key, TMap decls)
     assgn = do
       key <- tfid
-      _ <- satisfy (==TfEquals)
+      _ <- satisfy (==TokEquals)
       rval <- tfrval
       return $ (key, rval)
     tfrval = choice [TArray <$> tfarray, TStr <$> tfstr, TBool <$> tfbool, TNum <$> tfnum]
     tfbool = do
-      (TfBool b) <- satisfy isTfBool
+      (TokBool b) <- satisfy isTfBool
       return $ b
       where
-        isTfBool (TfBool _) = True
+        isTfBool (TokBool _) = True
         isTfBool _ = False
     tfnum = do
-      (TfNum i) <- satisfy isTfNum
+      (TokNum i) <- satisfy isTfNum
       return $ i
       where
-        isTfNum (TfNum _) = True
+        isTfNum (TokNum _) = True
         isTfNum _ = False
 
 
 parseTF :: String -> String -> [TfDeclaration]
 parseTF name input
   = let toks = either (error . show) id $ parse tfTokenizer name input
-            in either (error . show) id $ parse tfParse name $ filter (\(TokOccur _ t)-> t /= TfSep) toks
+            in either (error . show) id $ parse tfParse name $ filter (\(TokOccur _ t)-> t /= TokSep) toks
 
