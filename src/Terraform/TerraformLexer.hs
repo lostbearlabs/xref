@@ -32,11 +32,6 @@ sourcePos = statePos `liftM` getParserState
 -- These are all the tokens we recognize
 data TfToken
   = TokSep
-  | TokProvider
-  | TokResource
-  | TokData
-  | TokOutput
-  | TokVariable
   | TokStr String
   | TokBool Bool
   | TokNum String
@@ -90,16 +85,21 @@ tfTokenizer =
             (<?> "identifier") $ identifier >>= (treturn . Just . TokId)
           ]
   where
-    identifier = many1 (oneOf $ concat [['a' .. 'z'], ['A' .. 'Z'], "_", "-"])
     embed :: Parsec String () String
     embed = do
       _ <- string "${"
-      stuff <- concat <$> manyTill (concat <$> many (choice [try embed, (: []) <$> (noneOf "}")])) (oneOf "}")
+      stuff <- concat <$> manyTill (concat <$> many (choice [try embed, (: []) <$> noneOf "}"])) (oneOf "}")
       return $ "${" ++ stuff ++ "}"
     sep = choice [string "\n", string ";"]
     treturn t = do
       pos <- sourcePos
       return $ maybe Nothing (Just . TokOccur pos) t
+
+identifier :: ParsecT String u Identity [Char]
+identifier = do
+    firstChar <- oneOf $ concat [['a' .. 'z'], ['A' .. 'Z'], "_", "-"]
+    restChars <- many (oneOf $ concat [['a' .. 'z'], ['A' .. 'Z'], "_", "-", ['0' .. '9']])
+    return (firstChar:restChars)
 
 -- Remove common indent from block of strings
 dedent :: [String] -> [String]
