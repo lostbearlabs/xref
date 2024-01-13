@@ -32,7 +32,16 @@ data TRVal
   | TNum String
   | TMap [(TId, TRVal)]
   | TArray [TRVal]
+  | TExpr TExpr
   deriving (Eq, Show)
+
+-- Expressions used in r-vals
+-- Not intended to check semantics ... will accept legal forms like "x.y" but also illegal forms like "x.(2+3)"
+data TExpr
+  = ExpId TId
+  | ExpRef TId TExpr
+  deriving (Eq, Show)
+
 
 -- Top-level blocks in the terraform project;  our parser just returns a list of these
 data TfDeclaration
@@ -44,6 +53,9 @@ data TfDeclaration
   | TfVariable TId [(TId, TRVal)]
   | TfProvider TId [(TId, TRVal)]
   deriving (Eq, Show)
+
+----------------
+-- Parse top-level blocks
 
 tfParse :: Parsec [TokOccur] () [TfDeclaration]
 tfParse = many (choice [terraconfig, provider, resource, _data, output, variable, mmodule]) <* eof
@@ -92,55 +104,93 @@ tfParse = many (choice [terraconfig, provider, resource, _data, output, variable
       decls <- tfdecls
       _ <- satisfy (== TokBlockEnd)
       return $ TfVariable key decls
-    tfstr = do
-      (TokStr s) <- satisfy isTokStr
-      return s
-    tfid = do
-      (TokId s) <- satisfy isTokId
-      return s
-    tfdecls :: Parsec [TokOccur] () [(TId, TRVal)]
-    tfdecls = many (choice [try provisioner, try backend, try block, assgn])
-    -- TODO limit annoying special provisioner/backend cases to the relevant contexts
-    tfarray = do
-      _ <- satisfy (== TokArrayStart)
-      things <- many tfrval
-      _ <- satisfy (== TokArrayEnd)
-      return things
-    provisioner = do
-      _ <- satisfy (== TokId "provisioner")
-      typ <- tfstr
-      _ <- optionMaybe $ satisfy (== TokEquals)
-      _ <- satisfy (== TokBlockStart)
-      decls <- tfdecls
-      _ <- satisfy (== TokBlockEnd)
-      return ("__provisioner_" ++ typ, TMap decls) -- TODO special-case this bullshit more nicely
-    backend = do
-      _ <- satisfy (== TokId "backend")
-      typ <- tfstr
-      _ <- optionMaybe $ satisfy (== TokEquals)
-      _ <- satisfy (== TokBlockStart)
-      decls <- tfdecls
-      _ <- satisfy (== TokBlockEnd)
-      return ("__backend_" ++ typ, TMap decls) -- TODO special-case this bullshit more nicely
-    block = do
-      key <- tfid
-      _ <- optionMaybe $ satisfy (== TokEquals)
-      _ <- satisfy (== TokBlockStart)
-      decls <- tfdecls
-      _ <- satisfy (== TokBlockEnd)
-      return (key, TMap decls)
-    assgn = do
-      key <- tfid
-      _ <- satisfy (== TokEquals)
-      rval <- tfrval
-      return (key, rval)
-    tfrval = choice [TArray <$> tfarray, TStr <$> tfstr, TBool <$> tfbool, TNum <$> tfnum]
-    tfbool = do
-      (TokBool b) <- satisfy isTokBool
-      return b
-    tfnum = do
-      (TokNum i) <- satisfy isTokNum
-      return i
+
+----------------
+-- Parse declaration lists within blocks
+
+tfdecls :: Parsec [TokOccur] () [(TId, TRVal)]
+tfdecls = many (choice [try provisioner, try backend, try block, assgn])
+  where
+  -- TODO limit annoying special provisioner/backend cases to the relevant contexts
+  provisioner = do
+    _ <- satisfy (== TokId "provisioner")
+    typ <- tfstr
+    _ <- optionMaybe $ satisfy (== TokEquals)
+    _ <- satisfy (== TokBlockStart)
+    decls <- tfdecls
+    _ <- satisfy (== TokBlockEnd)
+    return ("__provisioner_" ++ typ, TMap decls) -- TODO special-case this bullshit more nicely
+  backend = do
+    _ <- satisfy (== TokId "backend")
+    typ <- tfstr
+    _ <- optionMaybe $ satisfy (== TokEquals)
+    _ <- satisfy (== TokBlockStart)
+    decls <- tfdecls
+    _ <- satisfy (== TokBlockEnd)
+    return ("__backend_" ++ typ, TMap decls) -- TODO special-case this bullshit more nicely
+  block = do
+    key <- tfid
+    _ <- optionMaybe $ satisfy (== TokEquals)
+    _ <- satisfy (== TokBlockStart)
+    decls <- tfdecls
+    _ <- satisfy (== TokBlockEnd)
+    return (key, TMap decls)
+  assgn = do
+    key <- tfid
+    _ <- satisfy (== TokEquals)
+    rval <- tfrval
+    return (key, rval)
+
+
+----------------
+-- Parse RVals within declarations
+
+tfrval :: Parsec [TokOccur] () TRVal
+tfrval = choice [TArray <$> tfarray, TStr <$> tfstr, TBool <$> tfbool, TNum <$> tfnum, TExpr <$> tfexpr]
+
+tfbool :: Parsec [TokOccur] () Bool
+tfbool = do
+  (TokBool b) <- satisfy isTokBool
+  return b
+
+tfnum :: Parsec [TokOccur] () String
+tfnum = do
+  (TokNum i) <- satisfy isTokNum
+  return i
+
+tfstr :: Parsec [TokOccur] () String
+tfstr = do
+  (TokStr s) <- satisfy isTokStr
+  return s
+
+tfid :: Parsec [TokOccur] () String
+tfid = do
+  (TokId s) <- satisfy isTokId
+  return s
+
+tfarray :: Parsec [TokOccur] () [TRVal]
+tfarray = do
+  _ <- satisfy (== TokArrayStart)
+  things <- many tfrval
+  _ <- satisfy (== TokArrayEnd)
+  return things
+
+----------------
+-- Parse expressions within RVals
+
+tfexpr :: Parsec [TokOccur] () TExpr
+tfexpr = choice [try tfref, try tfid']
+  where
+    tfref = do
+      (TokId ident) <- satisfy isTokId
+      _ <- satisfy (== TokDot)
+      ExpRef ident <$> tfexpr
+    tfid' = do
+      (TokId ident) <- satisfy isTokId
+      return $ ExpId ident
+
+----------------
+-- Top-level parser for a Terraform file
 
 parseTF :: String -> String -> [TfDeclaration]
 parseTF name input =

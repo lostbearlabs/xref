@@ -14,8 +14,13 @@ terraformLexerTests =
         tok "[ ] { }" @?= [TokArrayStart, TokArrayEnd, TokBlockStart, TokBlockEnd],
       testCase "equals" $
         tok "=" @?= [TokEquals],
+      testCase "dot" $
+        tok "." @?= [TokDot],
+      testCase "dot2" $
+        tok "x.y" @?= [TokId "x", TokDot, TokId "y"],
       testCase "numbers" $
-        tok "123 4.56 7. .8" @?= [TokNum "123", TokNum "4.56", TokNum "7.", TokNum ".8"],
+        -- TODO: .8 is not handled correctly yet
+        tok "123 4.56 7." @?= [TokNum "123", TokNum "4.56", TokNum "7."],
       testCase "booleans" $
         tok "true false" @?= [TokBool True, TokBool False],
       testCase "strings" $

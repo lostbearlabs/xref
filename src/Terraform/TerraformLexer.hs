@@ -19,7 +19,9 @@ import Text.Parsec
     optionMaybe,
     parse,
     string,
+    char,
     try,
+    notFollowedBy,
     (<?>),
   )
 import Text.Parsec.Prim (ParsecT, Stream, getParserState, statePos, token)
@@ -41,6 +43,7 @@ data TfToken
   | TokArrayStart
   | TokArrayEnd
   | TokEquals
+  | TokDot
   deriving (Eq, Show)
 
 -- Recognizers for the various tokens
@@ -59,7 +62,6 @@ isTokNum _ = False
 isTokId :: TfToken -> Bool
 isTokId (TokId _) = True
 isTokId _ = False
-
 
 -- TokOccur wraps a TfToken together with a SourcePos
 data TokOccur = TokOccur SourcePos TfToken
@@ -82,6 +84,11 @@ tfTokenizer =
             (<?> "]") $ string "]" >> treturn (Just TokArrayEnd),
             (<?> "{") $ string "{" >> treturn (Just TokBlockStart),
             (<?> "}") $ string "}" >> treturn (Just TokBlockEnd),
+            (<?> ".") $ do
+              _ <- char '.'
+              -- TODO: this doesn't work to prevent TokDot instead of TokNum when parsing ".8" -- why?
+              notFollowedBy (oneOf ['0'..'9'])
+              treturn (Just TokDot),
             (<?> "heredoc") $ do
               _ <- string "<<"
               maybeDedent <- maybe id (const dedent) <$> optionMaybe (string "-")

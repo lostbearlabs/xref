@@ -3,6 +3,7 @@ module Terraform.TerraformParserTests (terraformParserTests) where
 import Test.Tasty
 import Test.Tasty.HUnit
 import Terraform.TerraformParser
+--import Terraform.TerraformParser (TExpr(..))
 
 terraformParserTests :: TestTree
 terraformParserTests =
@@ -24,6 +25,8 @@ terraformParserTests =
         actProvider @?= expProvider
     , testCase "Expressions" $
         actExpressions @?= expExpressions
+    , testCase "ValueTypes" $
+        actValueTypes @?= expValueTypes
     ]
 
 -------------------------------------
@@ -133,14 +136,14 @@ stOutput = "\
 
 
 -------------------------------------
--- Expressions
--- (a simple config block as tested previously, but now exercising the different possible RVals)
+-- ValueTypes
+-- (a simple config block as tested previously, but now exercising the different shapes for RVals)
 
-actExpressions :: [TfDeclaration]
-actExpressions = parseTF "stExpressions" stExpressions
+actValueTypes :: [TfDeclaration]
+actValueTypes = parseTF "stValueTypes" stValueTypes
 
-expExpressions :: [TfDeclaration]
-expExpressions = [TfConfig 
+expValueTypes :: [TfDeclaration]
+expValueTypes = [TfConfig
     [ ("foo", TStr "bar")
     , ("foo2", TStr "bar2")
     , ("a", TNum "123")
@@ -150,8 +153,8 @@ expExpressions = [TfConfig
     , ("e", TMap [ ("r", TStr "r1") ])
     ]]
 
-stExpressions :: String
-stExpressions = "\
+stValueTypes :: String
+stValueTypes = "\
 \terraform {\
 \  foo          = \"bar\"\
 \  foo2         = \"bar2\"\
@@ -165,4 +168,31 @@ stExpressions = "\
 \  e            = {\
 \                    r = \"r1\",\
 \                 }\
+\}"
+
+
+-------------------------------------
+-- Expressions
+-- (a simple config block as tested previously, but now exercising the different expressions that can be used in RVals)
+
+actExpressions :: [TfDeclaration]
+actExpressions = parseTF "stExpressions" stExpressions
+
+expExpressions :: [TfDeclaration]
+expExpressions = [TfConfig
+    [ ("a", TExpr (ExpId "x"))
+    , ("b", TExpr (ExpRef "x" (ExpId "y")))
+    -- , ("foo2", TStr "bar2")
+    -- , ("a", TNum "123")
+    -- , ("b", TBool True)
+    -- , ("c", TArray [ TStr "x", TStr "y"])
+    -- , ("d", TMap [ ("p", TStr "p1"), ("q", TStr "q1") ])
+    -- , ("e", TMap [ ("r", TStr "r1") ])
+    ]]
+
+stExpressions :: String
+stExpressions = "\
+\terraform {\
+\  a          = x\
+\  b          = x.y\
 \}"
