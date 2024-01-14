@@ -9,9 +9,9 @@ terraformLexerTests =
   testGroup
     "TerraformLexer Tests"
     [ testCase "ids" $
-        tok "foo a_b x2" @?= [TokId "foo", TokId "a_b", TokId "x2"],
+        tok "foo a_b x2 *" @?= [TokId "foo", TokId "a_b", TokId "x2", TokId "*"],
       testCase "brackets" $
-        tok "[ ] { }" @?= [TokArrayStart, TokArrayEnd, TokBlockStart, TokBlockEnd],
+        tok "[ ] { } ( )" @?= [TokArrayStart, TokArrayEnd, TokBlockStart, TokBlockEnd, TokLeftParen, TokRightParen],
       testCase "equals" $
         tok "=" @?= [TokEquals],
       testCase "dot" $

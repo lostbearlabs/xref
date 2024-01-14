@@ -40,6 +40,7 @@ data TRVal
 data TExpr
   = ExpId TId
   | ExpRef TId TExpr
+  | ExpFunc TId [TRVal]
   deriving (Eq, Show)
 
 
@@ -179,7 +180,7 @@ tfarray = do
 -- Parse expressions within RVals
 
 tfexpr :: Parsec [TokOccur] () TExpr
-tfexpr = choice [try tfref, try tfid']
+tfexpr = choice [try tfref, try tffunc, try tfid']
   where
     tfref = do
       (TokId ident) <- satisfy isTokId
@@ -188,6 +189,12 @@ tfexpr = choice [try tfref, try tfid']
     tfid' = do
       (TokId ident) <- satisfy isTokId
       return $ ExpId ident
+    tffunc = do
+      (TokId ident) <- satisfy isTokId
+      _ <- satisfy (== TokLeftParen)
+      args <- many tfrval
+      _ <- satisfy (== TokRightParen)
+      return $ ExpFunc ident args
 
 ----------------
 -- Top-level parser for a Terraform file

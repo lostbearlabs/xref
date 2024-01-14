@@ -182,6 +182,10 @@ expExpressions :: [TfDeclaration]
 expExpressions = [TfConfig
     [ ("a", TExpr (ExpId "x"))
     , ("b", TExpr (ExpRef "x" (ExpId "y")))
+    , ("c", TNum "1")
+    , ("d", TBool False)
+    , ("e", TExpr (ExpFunc "func" [TNum "1", TNum "2"]))
+
     -- , ("foo2", TStr "bar2")
     -- , ("a", TNum "123")
     -- , ("b", TBool True)
@@ -195,4 +199,7 @@ stExpressions = "\
 \terraform {\
 \  a          = x\
 \  b          = x.y\
+\  c          = 1\
+\  d          = false\
+\  e          = func( 1, 2 )\
 \}"

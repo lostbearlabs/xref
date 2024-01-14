@@ -42,6 +42,8 @@ data TfToken
   | TokBlockEnd
   | TokArrayStart
   | TokArrayEnd
+  | TokLeftParen
+  | TokRightParen
   | TokEquals
   | TokDot
   deriving (Eq, Show)
@@ -84,6 +86,10 @@ tfTokenizer =
             (<?> "]") $ string "]" >> treturn (Just TokArrayEnd),
             (<?> "{") $ string "{" >> treturn (Just TokBlockStart),
             (<?> "}") $ string "}" >> treturn (Just TokBlockEnd),
+            (<?> "(") $ string "(" >> treturn (Just TokLeftParen),
+            (<?> ")") $ string ")" >> treturn (Just TokRightParen),
+            -- we treat * as an indentifier for use in expressions like "a = b.c.*.e"
+            (<?> "*") $ string "*" >> treturn (Just $ TokId "*"),
             (<?> ".") $ do
               _ <- char '.'
               -- TODO: this doesn't work to prevent TokDot instead of TokNum when parsing ".8" -- why?
