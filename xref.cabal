@@ -26,6 +26,9 @@ source-repository head
 library
   exposed-modules:
       Diffs
+      Terraform.Lexer
+      Terraform.Parse
+      Terraform.Parser
       Terraform.TerraformLexer
       Terraform.TerraformParser
       XData
@@ -39,8 +42,12 @@ library
       OverloadedStrings
       DeriveGeneric
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+  build-tools:
+      alex
+    , happy
   build-depends:
       aeson
+    , array
     , base >=4.7 && <5
     , bytestring
     , containers
@@ -56,6 +63,9 @@ executable xray
   hs-source-dirs:
       app/xray
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  build-tools:
+      alex
+    , happy
   build-depends:
       base >=4.7 && <5
     , directory
@@ -73,6 +83,9 @@ executable xref
   hs-source-dirs:
       app/xref
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  build-tools:
+      alex
+    , happy
   build-depends:
       base >=4.7 && <5
     , xref
@@ -83,6 +96,7 @@ test-suite xref-test
   main-is: Spec.hs
   other-modules:
       DiffTests
+      Terraform.ParseTests
       Terraform.TerraformLexerTests
       Terraform.TerraformParserTests
       XDataTests
@@ -92,6 +106,9 @@ test-suite xref-test
   hs-source-dirs:
       test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  build-tools:
+      alex
+    , happy
   build-depends:
       base >=4.7 && <5
     , tasty

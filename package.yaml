@@ -33,6 +33,10 @@ ghc-options:
 - -Wpartial-fields
 - -Wredundant-constraints
 
+build-tools:
+- alex
+- happy
+
 library:
   source-dirs: src
   dependencies:
@@ -40,6 +44,7 @@ library:
   - bytestring
   - containers
   - parsec
+  - array
   default-extensions:
     - OverloadedStrings
     - DeriveGeneric
