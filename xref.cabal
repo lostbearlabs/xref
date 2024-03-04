@@ -29,6 +29,7 @@ library
       Terraform.Lexer
       Terraform.Parse
       Terraform.Parser
+      Terraform.ParserDependencies
       Terraform.TerraformLexer
       Terraform.TerraformParser
       XData

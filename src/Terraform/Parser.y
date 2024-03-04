@@ -1,12 +1,14 @@
 {
 module Terraform.Parser(parse) where
 import Terraform.Lexer
+import Terraform.ParserDependencies
 }
 
 
 %name parse
 %tokentype { Token }
 %error {parseError}
+%monad { E } { thenE } { returnE }
 
 %token
   int    { TkInt $$ }
@@ -26,8 +28,9 @@ Term : Term mult Factor { $1 * $3 }
 Factor : int            { $1 }
        | lparen Expr rparen { $2 }
 
+
 {
-parseError :: [Token] -> a
-parseError tokens = error $ "Parse error on token: " ++ show tokens
+parseError :: [Token] -> E a
+parseError tokens = failE $ "Parse error on token: " ++ show tokens
 }
 
