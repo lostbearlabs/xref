@@ -13,9 +13,25 @@ parseTests =
         case parseInput "22 22" of
           Failed _ -> return ()
           _ -> assertFailure "Expected failure, but parsing succeeded"
-    , testCase "int" $
-        (parseInput "2") @?= (Ok 2)
+    , testCase "Config" $
+        actConfig @?= expConfig
     ]
 
 
 
+
+
+-------------------------------------
+-- Config
+
+actConfig :: E [TDeclaration]
+actConfig = parseInput stConfig
+
+expConfig :: E [TDeclaration]
+expConfig = Ok [TConfig [("foo", TStr "bar")]]
+
+stConfig :: String
+stConfig = "\
+\terraform {\
+\  foo          = \"bar\"\
+\}"
