@@ -27,12 +27,20 @@ tokens :-
   \]                  { \_ -> TkArrayEnd }
   \?                  { \_ -> TkQuestion }
   \:                  { \_ -> TkColon }
+  \True               { \_ -> TkBool True }
+  \False               { \_ -> TkBool False }
   \"[^\n\"]*\"        { \s -> TkStr $ read s}
-  -- TODO: HEREDOC STRINGS
-  $alpha$alnum*       { \s -> TkId $ s}
-
+  $alpha$alnum*       { \s -> TkId s}
+  -- TODO: this only handles heredocts that use EOT;  generalize to allow any marker
+  \<\<EOT\n[.\n]*\nEOT  { \s -> TkStr (removeHere s "EOT")}
 
 {
+
+removeHere :: String -> String -> String
+removeHere str eot = take (length rest - length eot - 1) rest
+   where
+     rest = drop (length eot + 3) str
+
 data Token = TkInt Int
   | TkStr String
   | TkBool Bool
