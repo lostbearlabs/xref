@@ -97,6 +97,7 @@ test-suite xref-test
   main-is: Spec.hs
   other-modules:
       DiffTests
+      Terraform.LexerTests
       Terraform.ParseTests
       Terraform.TerraformLexerTests
       Terraform.TerraformParserTests
