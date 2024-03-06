@@ -15,10 +15,28 @@ parseTests =
           _ -> assertFailure "Expected failure, but parsing succeeded"
     , testCase "Config" $
         actConfig @?= expConfig
+    , testCase "Variable" $
+        actVariable @?= expVariable
     ]
 
 
 
+
+-------------------------------------
+-- Variable
+
+
+actVariable :: E [TDeclaration]
+actVariable = parseInput stVariable
+
+expVariable :: E [TDeclaration]
+expVariable = Ok [TVariable "var1" [ ("description", TStr "Var1 Description"), ("default", TNum 5678)] ]
+
+stVariable :: String
+stVariable = "variable \"var1\" {\
+\  description = \"Var1 Description\"\
+\  default     = 5678\
+\}"
 
 
 -------------------------------------

@@ -21,12 +21,23 @@ import Terraform.ParserDependencies
   rbracket { TkBlockEnd }
   str    { TkStr $$ }
   equals { TkEquals }
+  terraform { TkTerraform }
+  variable { TkVariable }
 %%
 
 Decls : Decl Decls      { $1 : $2 }
      | Decl             { [$1] }
 
-Decl : id lbracket id equals str rbracket { TConfig [($3, TStr $5)] }
+Decl : terraform lbracket id equals str rbracket { TConfig [($3, TStr $5)] }
+     | variable str lbracket Assignments rbracket { TVariable $2 $4 }
+
+Assignments : Assignment Assignments { $1 : $2}
+     | Assignment { [$1] }
+
+Assignment : id equals RVal { ($1, $3) }
+
+RVal : int { TNum $1 }
+     | str {TStr $1 }
 
 -- Expr : Expr plus Term   { $1 + $3 }
 --      | Term             { $1 }

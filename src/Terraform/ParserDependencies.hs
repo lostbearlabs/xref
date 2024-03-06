@@ -39,7 +39,7 @@ type TId = String
 data TRVal
   = TStr String
   | TBool Bool
-  | TNum String
+  | TNum Int
   | TMap [(TId, TRVal)]
   | TArray [TRVal]
   | TExpr TExpr

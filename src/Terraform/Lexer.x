@@ -28,7 +28,9 @@ tokens :-
   \?                  { \_ -> TkQuestion }
   \:                  { \_ -> TkColon }
   \True               { \_ -> TkBool True }
-  \False               { \_ -> TkBool False }
+  \False              { \_ -> TkBool False }
+  terraform       { \_ -> TkTerraform }
+  variable            { \_ -> TkVariable }
   \"[^\n\"]*\"        { \s -> TkStr $ read s}
   $alpha$alnum*       { \s -> TkId s}
   -- TODO: this only handles heredocts that use EOT;  generalize to allow any marker
@@ -59,6 +61,8 @@ data Token = TkInt Int
   | TkDot
   | TkQuestion
   | TkColon
+  | TkTerraform
+  | TkVariable
   deriving(Eq, Show)
 
 }

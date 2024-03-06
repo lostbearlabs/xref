@@ -10,6 +10,8 @@ lexerTests =
     "Lexer Tests"
     [ testCase "ws" $
         (lexInput "   ") @?= []
+    , testCase "keywords" $
+        (lexInput "terraform variable") @?= [TkTerraform, TkVariable]
     , testCase "int" $
         (lexInput "2") @?= [TkInt 2]
     , testCase "bool" $
