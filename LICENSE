@@ -28,21 +28,3 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-
-======================================
-
-Terraform parsing code is derived from:
-
-This file is derived from:
-   https://github.com/tsprlng/terraform-hcl-converter/blob/master/TerraformParser.hs
-which includes the following copyright notice:
-
-> ISC License
-> 
-> Copyright (c) 2019, Tom Spurling
->  
-> Permission to use, copy, modify, and/or distribute this software for any
-> purpose with or without fee is hereby granted, provided that the above
-> copyright notice and this permission notice appear in all copies.
-

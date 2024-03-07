@@ -6,7 +6,8 @@ import Options.Applicative
 import System.Directory
 import System.FilePath ((</>))
 import XData
-import Terraform.TerraformParser
+import Terraform.ParserDependencies
+import Terraform.Parse
 import Control.Monad (forM)
 
 -- File Types that we can analyze
@@ -88,7 +89,7 @@ main = do
   _ <- forM files $ \fileName -> do
     putStrLn fileName
     fileText <- readFile fileName
-    let db = parseFile (fileType options) fileName fileText
+    let db = parseFile (fileType options) fileText
     putStrLn (show db)
     return db
 
@@ -98,12 +99,15 @@ main = do
   writeDatabaseToFile filePath db
   putStrLn "... done"
 
-parseFile :: FileType -> String -> String -> Database
-parseFile TF fileName fileText = 
+parseFile :: FileType -> String -> Database
+parseFile TF fileText = 
   let 
-    decls :: [TfDeclaration]
-    decls = parseTF fileName fileText
+    parseResult :: E [TDeclaration]
+    parseResult = parseInput fileText
   in
-    Database [(Def "size" $ (show . length) decls)] []
+    case parseResult of
+      Ok decls -> Database [(Def "size" $ (show . length) decls)] []
+      err -> error (show err)
+    
 
-parseFile fType _ _ = error $ "file type " <> (show fType) <> " not implemented"
+parseFile fType _ = error $ "file type " <> (show fType) <> " not implemented"

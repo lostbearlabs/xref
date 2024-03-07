@@ -30,8 +30,6 @@ library
       Terraform.Parse
       Terraform.Parser
       Terraform.ParserDependencies
-      Terraform.TerraformLexer
-      Terraform.TerraformParser
       XData
   other-modules:
       Paths_xref
@@ -99,8 +97,6 @@ test-suite xref-test
       DiffTests
       Terraform.LexerTests
       Terraform.ParseTests
-      Terraform.TerraformLexerTests
-      Terraform.TerraformParserTests
       XDataTests
       Paths_xref
   autogen-modules:
