@@ -27,10 +27,19 @@ tokens :-
   \]                  { \_ -> TkArrayEnd }
   \?                  { \_ -> TkQuestion }
   \:                  { \_ -> TkColon }
-  \True               { \_ -> TkBool True }
-  \False              { \_ -> TkBool False }
-  terraform       { \_ -> TkTerraform }
+  \,                  { \_ -> TkComma }
+
+  \True|true          { \_ -> TkBool True }
+  \False|false        { \_ -> TkBool False }
+
+  terraform           { \_ -> TkTerraform }
   variable            { \_ -> TkVariable }
+  provider            { \_ -> TkProvider }
+  resource            { \_ -> TkResource }
+  module              { \_ -> TkModule }
+  data                { \_ -> TkData }
+  output              { \_ -> TkOutput }
+
   \"[^\n\"]*\"        { \s -> TkStr $ read s}
   $alpha$alnum*       { \s -> TkId s}
   -- TODO: this only handles heredocts that use EOT;  generalize to allow any marker
@@ -63,6 +72,12 @@ data Token = TkInt Int
   | TkColon
   | TkTerraform
   | TkVariable
+  | TkProvider
+  | TkResource
+  | TkModule
+  | TkData
+  | TkOutput
+  | TkComma
   deriving(Eq, Show)
 
 }

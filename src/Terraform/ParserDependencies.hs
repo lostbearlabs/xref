@@ -42,15 +42,9 @@ data TRVal
   | TNum Int
   | TMap [(TId, TRVal)]
   | TArray [TRVal]
-  | TExpr TExpr
-  deriving (Eq, Show)
-
--- Expressions used in r-vals
--- Not intended to check semantics ... will accept legal forms like "x.y" but also illegal forms like "x.(2+3)"
-data TExpr
-  = ExpId TId
-  | ExpRef TId TExpr
-  | ExpFunc TId [TRVal]
+  | TRef TId TRVal
+  | TFunc TId [TRVal]
+  | TRId TId
   deriving (Eq, Show)
 
 data TDeclaration
